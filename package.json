@@ -1,0 +1,25 @@
+{
+  "name": "big-diff",
+  "version": "0.0.0",
+  "description": "A visual tool for diff'ing large JSON response objects.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chantzlarge/big-diff.git"
+  },
+  "keywords": [
+    "JavaScript",
+    "NodeJS",
+    "diff",
+    "JSON"
+  ],
+  "author": "@chantzlarge",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chantzlarge/big-diff/issues"
+  },
+  "homepage": "https://github.com/chantzlarge/big-diff#readme"
+}
