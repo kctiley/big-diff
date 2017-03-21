@@ -1,89 +1,129 @@
 'use strict'
 
 const _ = require('lodash')
+const colors = require('colors')
 
-/**
- * @class
- * @author Chantz Large <@chantzlarge>
- * @description TODO
-**/
 class Diff {
-  /**
-   * @constructor
-   * @author Chantz Large <@chantzlarge>
-   * @description TODO
-   * @arg {Object|Array} expected - TODO
-   * @arg {Object|Array} actual - TODO
-   * @arg {Object} options - TODO
-  **/
-  constructor (expected, actual, options) {
+  constructor (expected, actual) {
     this.expected = expected
     this.actual = actual
-    this.options = options
-    this.pairs = { expected: [], actual: [] }
-    Diff.toPairsDeep(this.expected, this.pairs.expected)
-    Diff.toPairsDeep(this.actual, this.pairs.actual)
   }
 
-  /**
-   * @setter
-   * @arg {Object|Array} expected - TODO
-  **/
-  set expected (expected) {
-    if (_.isObject(expected)) this._expected = expected
-    else throw new Error('Invalid argument: expected')
+  get difference () {
+    return {
+      expected: Diff.difference(this.comparison.expected),
+      actual: Diff.difference(this.comparison.actual)
+    }
   }
 
-  /**
-   * @setter
-   * @arg {Object|Array} expected - TODO
-  **/
-  set actual (actual) {
-    if (_.isObject(actual)) this._actual = actual
-    else throw new Error('Invalid argument: actual')
+  static difference (a) {
+    let valid = []
+    let invalid = []
+    let missing = []
+    _.each(a, (x) => {
+      if (_.isEqual(x[0], x[2]) && _.isEqual(x[1], x[3])) valid.push(x)
+      else if (_.isEqual(x[0], x[2])) invalid.push(x)
+      else missing.push(x)
+    })
+    return {
+      valid: valid,
+      invalid: invalid,
+      missing: missing
+    }
   }
 
-  /**
-   * @getter
-   * @returns {Object|Array}
-  **/
-  get expected () {
-    return this._expected
+  get comparison () {
+    return {
+      expected: Diff.compare(this.entries.expected, this.entries.actual),
+      actual: Diff.compare(this.entries.actual, this.entries.actual)
+    }
   }
 
-  /**
-   * @getter
-   * @returns {Object|Array}
-  **/
-  get actual () {
-    return this._actual
+  static compare (a, b) {
+    return _.map(a, (x, i) => {
+      let j = _.findIndex(b, (y) => {
+        return _.isEqual(x[0], y[0])
+      })
+      if (j === -1) {
+        x.push(null)
+        x.push(null)
+        return x
+      }
+      else {
+        x.push(b[j][0])
+        x.push(b[j][1])
+        return x
+      }
+    })
   }
 
-  /**
-   * @function
-   * @author Chantz Large <@chantzlarge>
-   * @description TODO
-  **/
-  static toPairsDeep (o, target, path) {
-    if (_.isArray(o)) _.each(o, (v, i) => Diff.toPairsDeep(o[i], target, `${path}[${i}]`))
-    else if (_.isObject(o)) _.each(o, (v, k) => Diff.toPairsDeep(o[k], target, `${(path) ? `${path}.` : ''}${k}`))
-    else target.push([ path, o ])
+  get entries () {
+    return {
+      expected: Diff.entries(this.expected),
+      actual: Diff.entries(this.actual)
+    }
   }
 
-  /**
-   * @function
-   * @author Chantz Large <@chantzlarge>
-   * @description TODO
-   * @arg {Any} a - TODO
-   * @arg {Any} b - TODO
-  **/
-  static difference (a, b) {
-    return _.differenceWith(a, b, _.isEqual)
+  static entries (object) {
+    let entries = []
+    Diff.toEntries(object, entries)
+    return entries
+  }
+
+  static toEntries (object, target, path) {
+    if (_.isObject(object)) _.each(object, (value, key) => Diff.toEntries(value, target, path ? path.concat(key) : [].concat(key)))
+    else target.push([ path, object ])
+  }
+
+  get pairs () {
+    return {
+      expected: Diff.toPairs(this.entries.expected),
+      actual: Diff.toPairs(this.entries.actual)
+    }
+  }
+
+  static toPairs (entries) {
+    return _.map(entries, (entry) => {
+      return [Diff.toPath(entry[0]), entry[1]]
+    })
+  }
+
+  static toPath (keys) {
+    let path = ''
+    _.each(keys, (key) => {
+      path += _.isNumber(key) ? `[${key}]` : `${path ? '.' : ''}${key}`
+    })
+    return path
+  }
+
+  get print () {
+    return {
+      difference: {
+        expected: Diff.print.difference.expected(this.difference.expected)
+      }
+    }
+  }
+
+  static get print () {
+    return {
+      difference: {
+        expected: (diff) => {
+          console.log(`\nValid (${diff.valid.length} / ${diff.valid.length + diff.invalid.length + diff.missing.length}):\n`)
+          _.each(diff.valid, (entry) => {
+            console.log(`${Diff.toPath(entry[0])}: ${entry[1]} === ${entry[3]}`.green)
+          })
+          console.log(`\nInvalid (${diff.invalid.length} / ${diff.valid.length + diff.invalid.length + diff.missing.length}):\n`)
+          _.each(diff.invalid, (entry) => {
+            console.log(`${Diff.toPath(entry[0])}: ${entry[1]} !== ${entry[3]}`.yellow)
+          })
+          console.log(`\nMissing (${diff.missing.length} / ${diff.missing.length + diff.invalid.length + diff.missing.length}):\n`)
+          _.each(diff.missing, (entry) => {
+            console.log(`${Diff.toPath(entry[0])}: ${entry[1]} !== ${entry[3]}`.red)
+          })
+        }
+      }
+    }
   }
 }
 
-/**
- * @exports
- * @description TODO
-**/
 module.exports = Diff
