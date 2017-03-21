@@ -14,6 +14,7 @@ class Diff {
   constructor (e, a) {
     this.e = e
     this.a = a
+    Diff.print.asPathes(e, a)
   }
 
   /**
@@ -88,7 +89,7 @@ class Diff {
   **/
   static toPath (p) {
     let str = ''
-    _.each(p, (v) => str += _.isNumber(p) ? `[${v}]` : `${str ? '.' : ''}${v}`)
+    _.each(p, (v) => str += _.isNumber(v) ? `[${v}]` : `${str ? '.' : ''}${v}`)
     return str
   }
 }

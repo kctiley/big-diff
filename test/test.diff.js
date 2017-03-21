@@ -7,6 +7,6 @@ const b = require('./b.json')
 
 describe('Diff', () => {
   it('', () => {
-    Diff.print.asPathes(a, b)
+    let d = new Diff(a, b)
   })
 })
