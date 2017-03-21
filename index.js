@@ -3,12 +3,22 @@
 const _ = require('lodash')
 const colors = require('colors')
 
+/**
+ * @class
+**/
 class Diff {
+
+  /**
+   * @constructor
+  **/
   constructor (expected, actual) {
     this.expected = expected
     this.actual = actual
   }
 
+  /**
+   * @member
+  **/
   get difference () {
     return {
       expected: Diff.difference(this.comparison.expected),
@@ -16,6 +26,10 @@ class Diff {
     }
   }
 
+  /**
+   * @static
+   * @function
+  **/
   static difference (a) {
     let valid = []
     let invalid = []
@@ -32,6 +46,9 @@ class Diff {
     }
   }
 
+  /**
+   * @member
+  **/
   get comparison () {
     return {
       expected: Diff.compare(this.entries.expected, this.entries.actual),
@@ -39,6 +56,10 @@ class Diff {
     }
   }
 
+  /**
+   * @static
+   * @function
+  **/
   static compare (a, b) {
     return _.map(a, (x, i) => {
       let j = _.findIndex(b, (y) => {
@@ -57,6 +78,9 @@ class Diff {
     })
   }
 
+  /**
+   * @member
+  **/
   get entries () {
     return {
       expected: Diff.entries(this.expected),
@@ -64,17 +88,28 @@ class Diff {
     }
   }
 
+  /**
+   * @static
+   * @function
+  **/
   static entries (object) {
     let entries = []
     Diff.toEntries(object, entries)
     return entries
   }
 
+  /**
+   * @static
+   * @function
+  **/
   static toEntries (object, target, path) {
     if (_.isObject(object)) _.each(object, (value, key) => Diff.toEntries(value, target, path ? path.concat(key) : [].concat(key)))
     else target.push([ path, object ])
   }
 
+  /**
+   * @member
+  **/
   get pairs () {
     return {
       expected: Diff.toPairs(this.entries.expected),
@@ -82,12 +117,20 @@ class Diff {
     }
   }
 
+  /**
+   * @static
+   * @function
+  **/
   static toPairs (entries) {
     return _.map(entries, (entry) => {
       return [Diff.toPath(entry[0]), entry[1]]
     })
   }
 
+  /**
+   * @static
+   * @function
+  **/
   static toPath (keys) {
     let path = ''
     _.each(keys, (key) => {
@@ -96,6 +139,9 @@ class Diff {
     return path
   }
 
+  /**
+   * @member
+  **/
   get print () {
     return {
       difference: {
@@ -104,6 +150,10 @@ class Diff {
     }
   }
 
+  /**
+   * @static
+   * @member
+  **/
   static get print () {
     return {
       difference: {
@@ -126,4 +176,7 @@ class Diff {
   }
 }
 
+/**
+ * @exports
+**/
 module.exports = Diff
