@@ -51,8 +51,7 @@ class Diff {
     b = Diff.entries(b)
     return _.map(a, (x, i) => {
       let j = _.findIndex(b, (y) => { return _.isEqual(x[0], y[0]) })
-      if (j === -1) return x.concat(undefined)
-      else return x.concat(b[j][1])
+      return (j === -1) ? x.concat(undefined) : x.concat(b[j][1])
     })
   }
 
